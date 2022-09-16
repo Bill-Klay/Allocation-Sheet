@@ -140,7 +140,9 @@
                         this.snackText = 'Welcome!';
                         this.snackColor = 'success';
                         this.executionSnack = true;
-                        this.$emit('isAuthenticated', true);
+                        //this.$emit('isAuthenticated', true);
+                        this.$session.start();
+                        this.$router.push('/hello');
                     }
                     else if (response.status == 201) {
                         this.snackText = 'Your user has been created. Please login now.';

@@ -5,9 +5,11 @@ import VueRouter from 'vue-router'
 import LogIn from './components/LogIn.vue'
 import HelloWorld from './components/HelloWorld.vue'
 import NotFound from './components/404.vue'
+import VueSession from 'vue-session'
 
 Vue.config.productionTip = false
 Vue.use(VueRouter)
+Vue.use(VueSession, { persist: true })
 
 const routes = [
     { path: '/', redirect: '/login' }, // also can use alias: for this purpose, but that does not change the url

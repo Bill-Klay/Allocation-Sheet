@@ -87,6 +87,7 @@
           </a>
         </v-row>
       </v-col>
+        <v-col><button @click="logout">Logout</button></v-col>
     </v-row>
   </v-container>
 </template>
@@ -146,6 +147,17 @@
           href: 'https://vuetifyjs.com/getting-started/frequently-asked-questions',
         },
       ],
-    }),
+        }),
+        created() {
+            if (!this.$session.exists()) {
+                this.$router.push('/')
+            }
+        },
+        methods: {
+            logout() {
+                this.$session.destroy()
+                this.$router.push('/')
+            }
+        }
   }
 </script>
