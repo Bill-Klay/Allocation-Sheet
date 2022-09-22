@@ -56,7 +56,17 @@ class User(Resource):
             response = Response(status=201)
             return response
 
+class Members(Resource):
+    @auth.login_required
+    def get(self):
+        db = TinyDB('.\\db.json')
+        teams = db.table('teams')
+        df_members = pd.DataFrame(data = teams.all())
+        retMap = df_members.to_json(orient='records')
+        return retMap
+
 api.add_resource(User, '/login')
+api.add_resource(Members, '/teams')
 
 @app.route('/')
 def hello():
