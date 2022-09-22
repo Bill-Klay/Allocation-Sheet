@@ -1,12 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\public",
     "\\server",
     "\\src",
-    "\\src\\assets",
-    "\\src\\components",
-    "\\src\\plugins"
+    "\\src\\components"
   ],
   "PreviewInSolutionExplorer": false
 }
