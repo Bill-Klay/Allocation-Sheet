@@ -4,9 +4,9 @@
                    color="#804877"
                    dark
                    hide-on-scroll
-                   prominent
                    fade-img-on-scroll
-                   scroll-threshold="400">
+                   scroll-threshold="300"
+                   >
             <template v-slot:img="{ props }">
                 <v-img v-bind="props"
                        gradient="to top right, rgba(55,236,186,.7), rgba(25,32,72,.7)">

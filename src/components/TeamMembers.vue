@@ -9,7 +9,7 @@
                           class="elevation-5"
                           :loading="is_loading"
                           :footer-props="{ itemsPerPageOptions:[10,20,30,-1] }"
-                          style="margin-top: 20%;">
+                          style="margin-top: 15%;">
                 <template v-slot:top>
                     <v-toolbar flat>
                         <v-toolbar-title><h2>Team Members</h2></v-toolbar-title>
@@ -40,31 +40,31 @@
                                                    sm="6"
                                                    md="4">
                                                 <v-text-field v-model="editedItem.name"
-                                                              label="Dessert name"></v-text-field>
+                                                              label="Name"></v-text-field>
                                             </v-col>
                                             <v-col cols="12"
                                                    sm="6"
                                                    md="4">
-                                                <v-text-field v-model="editedItem.calories"
-                                                              label="Calories"></v-text-field>
+                                                <v-text-field v-model="editedItem.department"
+                                                              label="Team"></v-text-field>
                                             </v-col>
                                             <v-col cols="12"
                                                    sm="6"
                                                    md="4">
-                                                <v-text-field v-model="editedItem.fat"
-                                                              label="Fat (g)"></v-text-field>
+                                                <v-text-field v-model="editedItem.reporting"
+                                                              label="Manager"></v-text-field>
                                             </v-col>
                                             <v-col cols="12"
                                                    sm="6"
                                                    md="4">
-                                                <v-text-field v-model="editedItem.carbs"
-                                                              label="Carbs (g)"></v-text-field>
+                                                <v-text-field v-model="editedItem.allocation"
+                                                              label="Allocation"></v-text-field>
                                             </v-col>
                                             <v-col cols="12"
                                                    sm="6"
                                                    md="4">
-                                                <v-text-field v-model="editedItem.protein"
-                                                              label="Protein (g)"></v-text-field>
+                                                <v-text-field v-model="editedItem.projects"
+                                                              label="Projects"></v-text-field>
                                             </v-col>
                                         </v-row>
                                     </v-container>
@@ -116,6 +116,12 @@
                     </v-btn>
                 </template>
             </v-data-table>
+            <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+                {{ snackText }}
+                <template v-slot:action="{ attrs }">
+                    <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
+                </template>
+            </v-snackbar>
         </v-container>
         <v-row style="margin-top: 10%;"></v-row>
     </v-app>
@@ -137,11 +143,14 @@
             dialogDelete: false,
             backend: "http://localhost:5555",
             is_loading: true,
+            snack: false,
+            snackColor: '',
+            snackText: '',
             headers: [
                 { text: 'Name', align: 'start', value: 'name'},
                 { text: 'Team', value: 'department' },
                 { text: 'Reporting', value: 'reporting' },
-                { text: 'Allocation', value: 'allocation' },
+                { text: 'Allocation %', value: 'allocation' },
                 { text: 'Projects', value: 'projects' },
                 { text: 'Actions', value: 'actions', sortable: false },
             ],
@@ -149,17 +158,17 @@
             editedIndex: -1,
             editedItem: {
                 name: '',
-                department: 0,
-                reporting: 0,
-                allocation: 0,
-                projects: 0,
+                department: '',
+                reporting: '',
+                allocation: '',
+                projects: '',
             },
             defaultItem: {
                 name: '',
-                department: 0,
-                reporting: 0,
-                allocation: 0,
-                projects: 0,
+                department: '',
+                reporting: '',
+                allocation: '',
+                projects: '',
             },
         }),
 
@@ -211,6 +220,25 @@
                 this.editedIndex = this.members.indexOf(item)
                 this.editedItem = Object.assign({}, item)
                 this.dialogDelete = true
+                let auth = {
+                    username: this.$session.get('email'),
+                    password: this.$session.get('password')
+                };
+                axios.delete(this.backend + '/teams', { data: { item } }, {
+                    auth: auth
+                }).then(response => {
+                    if (response.status == 400) {
+                        this.snackText = 'Could not insert new record';
+                        this.snackColor = 'error';
+                        this.snack = true;
+                    }
+                    else {
+                        this.snackText = 'New record inserted';
+                        this.snackColor = 'success';
+                        this.snack = true;
+                    }
+                    console.log(response.data);
+                });
             },
 
             deleteItemConfirm() {
@@ -238,7 +266,26 @@
                 if (this.editedIndex > -1) {
                     Object.assign(this.members[this.editedIndex], this.editedItem)
                 } else {
-                    this.members.push(this.editedItem)
+                    this.members.push(this.editedItem);
+                    let auth = {
+                        username: this.$session.get('email'),
+                        password: this.$session.get('password')
+                    };
+                    axios.post(this.backend + '/teams', this.editedItem, {
+                        auth: auth
+                    }).then(response => {
+                        if (response.status == 400) {
+                            this.snackText = 'Could not insert new record';
+                            this.snackColor = 'error';
+                            this.snack = true;
+                        }
+                        else {
+                            this.snackText = 'New record inserted';
+                            this.snackColor = 'success';
+                            this.snack = true;
+                        }
+                        console.log(response.data);
+                    });
                 }
                 this.close()
             }

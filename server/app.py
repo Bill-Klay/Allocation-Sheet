@@ -12,6 +12,9 @@ api = Api(app)
 CORS(app)
 auth = HTTPBasicAuth()
 
+db = TinyDB('.\\db.json')
+teams = db.table('teams')
+
 @auth.verify_password
 def verify(username, password):
     if not (username and password):
@@ -59,12 +62,23 @@ class User(Resource):
 class Members(Resource):
     @auth.login_required
     def get(self):
-        db = TinyDB('.\\db.json')
-        teams = db.table('teams')
         df_members = pd.DataFrame(data = teams.all())
+        df_members.index.name = 'id'
+        df_members.reset_index(inplace=True)
         retMap = df_members.to_json(orient='records')
         return retMap
 
+    @auth.login_required
+    def post(self):
+        param = request.get_json()
+        try:
+            teams.insert(param)
+            response = Response(status=201)
+        except:
+            response = Response(status=400)
+
+        return response
+    
 api.add_resource(User, '/login')
 api.add_resource(Members, '/teams')
 
